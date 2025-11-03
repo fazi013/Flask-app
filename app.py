@@ -1,22 +1,84 @@
-from flask import Flask ,request ,jsonify
-from config import URI,SQLALCHEMY_TRACK_MODIFICATIONS
-from model import db, Product
+from flask import Flask, flash, redirect, render_template ,request ,jsonify,session
+from config import URI
+from model import db, user
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 
 
 app = Flask(__name__)
-
+app.secret_key = 'faisal_ki_secret_key'
 # db connection 
 app.config['SQLALCHEMY_DATABASE_URI'] = URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # db initialize
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
-@app.route('/')
-def home ():
-    return('this is the environment setting ')
 
+@app.route('/sinup',methods=['GET','POST'])
+def sinup():
+    if request.method == 'POST':
+        Username = request.form['username']
+        Email = request.form['email']
+        Password = request.form['password']
+        hashed_password = generate_password_hash(Password)
+
+        check_user= user.query.filter((user.username==Username)| (user.email==Email)).first()
+        if check_user:
+            flash('username or email already exist.')
+            return redirect('/sinup')
+        new_user= user(username=Username,password=hashed_password,email=Email)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('user regester succesfuly')
+        return redirect('/login')
+    return render_template('/sinup.html')
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method =='POST':
+        Username=request.form['username']
+        Password = request.form['password']
+
+        check_user= user.query.filter(user.username==Username).first()
+        if check_user and check_password_hash(check_user.password,Password) :
+            session['user_id']=check_user.id
+            session['username']=check_user.username
+            return redirect('/dashboard')
+        else:
+            flash('Invalid username or password.')
+            return redirect('/login')
+
+    return render_template('login.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        flash('Please login first.')
+        return redirect('/login')
+    return render_template('dashboard.html', username=session['username'])
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('Logged out successfully.')
+    return redirect('/login')
+
+
+    
+
+if __name__ == '__main__':
+    app.run()
+
+
+
+
+
+
+
+'''
 @app.route('/add',methods =['POST'])
 def add_function():
     data = request.get_json()
@@ -65,5 +127,6 @@ def delete(id):
     db.session.commit()
     return jsonify({"message":"product delete "})
 
-if __name__ == '__main__':
-    app.run()
+   ''' 
+
+
