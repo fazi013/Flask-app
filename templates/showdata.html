@@ -1,0 +1,11 @@
+ {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <div style="color: rgb(231, 20, 13);font-size: x-large;text-align: center;">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+<h2>
+    this is showData page
+</h2>
+ <button onclick="window.location.href='/dashboard'"">Dashboard</button>

@@ -1,6 +1,6 @@
 from flask import Flask, flash, redirect, render_template ,request ,jsonify,session
 from config import URI
-from model import db, user
+from model import db, User,DashboardData
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -26,11 +26,11 @@ def sinup():
         Password = request.form['password']
         hashed_password = generate_password_hash(Password)
 
-        check_user= user.query.filter((user.username==Username)| (user.email==Email)).first()
+        check_user= User.query.filter((User.username==Username)| (User.email==Email)).first()
         if check_user:
             flash('username or email already exist.')
             return redirect('/sinup')
-        new_user= user(username=Username,password=hashed_password,email=Email)
+        new_user= User(username=Username,password=hashed_password,email=Email)
         db.session.add(new_user)
         db.session.commit()
         flash('user regester succesfuly')
@@ -42,7 +42,7 @@ def login():
         Username=request.form['username']
         Password = request.form['password']
 
-        check_user= user.query.filter(user.username==Username).first()
+        check_user= User.query.filter(User.username==Username).first()
         if check_user and check_password_hash(check_user.password,Password) :
             session['user_id']=check_user.id
             session['username']=check_user.username
@@ -53,11 +53,32 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard',methods=['GET','POST'])
 def dashboard():
     if 'user_id' not in session:
         flash('Please login first.')
         return redirect('/login')
+    user_id=session['user_id']
+    if request.method=='POST':
+        lan=request.form.get('language')
+        dur=request.form.get('duration')
+        defi = request.form.get('difficulty')
+        existing = DashboardData.query.filter_by(user_id=user_id).first()
+
+        if existing:
+            existing.language = lan
+            existing.duration = dur
+            existing.difficulty = defi
+        else:
+            new_entry = DashboardData(
+                user_id=user_id,
+                language=lan,
+                duration=dur,
+                difficulty=defi
+            )
+            db.session.add(new_entry)
+
+        db.session.commit()
     return render_template('dashboard.html', username=session['username'])
 
 @app.route('/logout')
@@ -66,6 +87,12 @@ def logout():
     flash('Logged out successfully.')
     return redirect('/login')
 
+@app.route('/showdata')
+def showdata():
+    if 'user_id' not in session:
+        flash('Please login first.')
+        return redirect('/login')
+    return render_template('/showdata.html')
 
     
 

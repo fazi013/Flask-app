@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-class user(db.Model):
+class User(db.Model):
     __tablename__='user'
     id=db.Column(db.Integer,primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
@@ -9,7 +9,14 @@ class user(db.Model):
     password = db.Column(db.String(200), nullable=False)
 
  
+class DashboardData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True) 
+    language = db.Column(db.String(50))
+    duration = db.Column(db.String(50))
+    difficulty = db.Column(db.String(50))
 
+    user = db.relationship('User', backref=db.backref('dashboard', uselist=False))
 
 
 

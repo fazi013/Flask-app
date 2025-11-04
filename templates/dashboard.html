@@ -1,6 +1,116 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Learning Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-<h2>Welcome, {{ username }}!</h2>
-<p>This is your dashboard.</p>
-<a href="/logout">Logout</a>
+    .dashboard {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+      margin-bottom: -60px;
+    }
+    .dashboard_1 {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+      margin-top: -12px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+     {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <div style="color: rgb(231, 20, 13);font-size: x-large;text-align: center;">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+<div>
+<form method="POST" action="/dashboard">
+  <div class="dashboard">
+    <h2>Learning Dashboard</h2>
+
+    <select name="language" id="language">
+      <option disabled selected>Select Language</option>
+      <option>C++</option>
+      <option>Python</option>
+      <option>Java</option>
+      <option>Something Else</option>
+    </select>
+
+    <select name="duration" id="duration">
+      <option disabled selected>Select Duration</option>
+      <option>1 Month</option>
+      <option>2 Months</option>
+      <option>3 Months</option>
+      <option>6 Months</option>
+    </select>
+
+    <select name ="difficulty" id="difficulty">
+      <option disabled selected>Select Difficulty</option>
+      <option>Beginner</option>
+      <option>Intermediate</option>
+      <option>Expert</option>
+    </select>
+    <button type="submit">Submit</button>
+    </div>
+</form>
+<div class="dashboard_1">
+    <button onclick="window.location.href='/showdata'">Show</button>
+    <button onclick="window.location.href='/logout'">Logout</button>
+
+    
+  </div>
+</div>
+</body>
+</html>
+
 
