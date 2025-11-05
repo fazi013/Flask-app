@@ -1,8 +1,8 @@
 from flask import Flask, flash, redirect, render_template ,request ,jsonify,session
 from config import URI
-from model import db, User,DashboardData
+from model import db, User,DashboardData,AIResponse
 from werkzeug.security import generate_password_hash, check_password_hash
-
+import cohere
 
 
 
@@ -66,9 +66,13 @@ def dashboard():
         existing = DashboardData.query.filter_by(user_id=user_id).first()
 
         if existing:
+            flash('Your data already exists.')
+
+            '''
             existing.language = lan
             existing.duration = dur
             existing.difficulty = defi
+            '''
         else:
             new_entry = DashboardData(
                 user_id=user_id,
@@ -92,7 +96,37 @@ def showdata():
     if 'user_id' not in session:
         flash('Please login first.')
         return redirect('/login')
-    return render_template('/showdata.html')
+    user = db.session.get(User, session['user_id'])
+
+    dashboard=user.dashboard
+    ai_response=user.ai_response
+    if not dashboard:
+        flash('Please Enter data before reponse')
+        return redirect('/dashboard')
+
+    if dashboard and not ai_response:
+        prompt = f"User wants to learn {dashboard.language} for {dashboard.duration} at {dashboard.difficulty} level. Suggest a learning path."
+        
+        co = cohere.Client('HegsLkYqWKHkZR6PzPdwpotqYrXAA187FvjO9xDN')
+       
+        response = co.chat(
+            message=prompt,
+            temperature=0.7,
+            max_tokens=300
+        )
+        reply = response.text.strip()
+
+        
+
+        new_reply = AIResponse(user_id=user.id, response_text=reply)
+        db.session.add(new_reply)
+        db.session.commit()
+        ai_response = new_reply
+
+
+   
+    return render_template('showdata.html', dashboard=dashboard, reply=ai_response.response_text)
+
 
     
 

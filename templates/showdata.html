@@ -1,11 +1,61 @@
- {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-      <div style="color: rgb(231, 20, 13);font-size: x-large;text-align: center;">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-<h2>
-    this is showData page
-</h2>
- <button onclick="window.location.href='/dashboard'"">Dashboard</button>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Learning Path</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      padding: 40px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 {
+      color: #007acc;
+      margin-bottom: 20px;
+    }
+    h3 {
+      margin-top: 30px;
+      color: #333;
+    }
+    ul {
+      margin-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .highlight {
+      background: #e8f4ff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Your Dashboard</h2>
+    <p><strong>Language:</strong> {{ dashboard.language }}</p>
+    <p><strong>Duration:</strong> {{ dashboard.duration }}</p>
+    <p><strong>Difficulty:</strong> {{ dashboard.difficulty }}</p>
+
+    <div class="section">
+      <h3>AI Suggested Learning Path</h3>
+      <div class="highlight">
+        {{ reply | safe }}
+      </div>
+    </div>
+
+    <a href="/dashboard">Back to Dashboard</a> |
+    <a href="/logout">Logout</a>
+  </div>
+</body>
+</html>
