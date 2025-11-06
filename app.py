@@ -127,8 +127,31 @@ def showdata():
    
     return render_template('showdata.html', dashboard=dashboard, reply=ai_response.response_text)
 
+@app.route('/delete')
+def delete():
+    if 'user_id' not in session:
+        flash('Please login first.')
+        return redirect('/login')
+    user = db.session.get(User, session['user_id'])
+    if not user:
+        flash('User not found.')
+        return redirect('/login')
 
-    
+    delete_any=[]
+    if user.dashboard:
+        db.session.delete(user.dashboard)
+        delete_any.append('dashoard')
+        
+    if user.ai_response:
+        db.session.delete(user.ai_response)
+        delete_any.append('path')
+
+    if delete_any:
+        db.session.commit()
+        flash('your data is deleted')  
+    else:
+        flash('no data found')  
+    return render_template('dashboard.html', dashboard=None, ai_response=None)
 
 if __name__ == '__main__':
     app.run()
